@@ -65,15 +65,22 @@ func NewClient(cfg Config) *Client {
 		identity: cfg.Identity,
 		password: cfg.Password,
 		collections: collections{
-			systems:        cfg.SystemsCollection,
-			systemStats:    cfg.SystemStatsCollection,
-			containers:     cfg.ContainersCollection,
-			containerStats: cfg.ContainerStatsCollection,
-			realtime:       cfg.RealtimeCollection,
-			alerts:         cfg.AlertsCollection,
+			systems:        collectionOr(cfg.SystemsCollection, "systems"),
+			systemStats:    collectionOr(cfg.SystemStatsCollection, "system_stats"),
+			containers:     collectionOr(cfg.ContainersCollection, "containers"),
+			containerStats: collectionOr(cfg.ContainerStatsCollection, "container_stats"),
+			realtime:       collectionOr(cfg.RealtimeCollection, "rt_metrics"),
+			alerts:         collectionOr(cfg.AlertsCollection, "alerts"),
 		},
 		httpClient: httpClient,
 	}
+}
+
+func collectionOr(value, fallback string) string {
+	if value = strings.TrimSpace(value); value != "" {
+		return value
+	}
+	return fallback
 }
 
 func (c *Client) Configured() bool {
