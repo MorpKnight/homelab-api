@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -93,6 +94,7 @@ func (c *Client) Fetch(ctx context.Context) (RawData, map[string]string) {
 	if !c.Configured() {
 		return data, errorsByCollection
 	}
+	log.Printf("beszel collections systems=%q system_stats=%q containers=%q container_stats=%q realtime=%q alerts=%q", c.collections.systems, c.collections.systemStats, c.collections.containers, c.collections.containerStats, c.collections.realtime, c.collections.alerts)
 
 	fetch := func(name string, target *[]Record, optional bool) {
 		if strings.TrimSpace(name) == "" {
