@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log"
 	"sync"
 	"time"
 
@@ -66,6 +67,9 @@ func (s *Store) Refresh(ctx context.Context) {
 		source := domain.SourceStatus{Name: "beszel", Configured: s.beszel.Configured(), Status: "not_configured"}
 		if source.Configured {
 			data, errorsByCollection := s.beszel.Fetch(ctx)
+			if len(data.Systems) == 0 || len(data.Containers) == 0 {
+				log.Printf("beszel fetch systems=%d containers=%d system_stats=%d container_stats=%d realtime=%d alerts=%d errors=%v", len(data.Systems), len(data.Containers), len(data.SystemStats), len(data.ContainerStats), len(data.Realtime), len(data.Alerts), errorsByCollection)
+			}
 			snapshot.Systems = normalizeSystems(data)
 			snapshot.Containers = normalizeContainers(data)
 			snapshot.Alerts = normalizeAlerts(data.Alerts)
