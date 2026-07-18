@@ -87,24 +87,28 @@ func (c *Client) Fetch(ctx context.Context) (RawData, map[string]string) {
 		return data, errorsByCollection
 	}
 
-	fetch := func(name string, target *[]Record) {
+	fetch := func(name string, target *[]Record, optional bool) {
 		if strings.TrimSpace(name) == "" {
 			return
 		}
 		records, err := c.list(ctx, name)
 		if err != nil {
+			if optional {
+				return
+			}
 			errorsByCollection[name] = safeError(err)
 			return
 		}
 		*target = records
 	}
 
-	fetch(c.collections.systems, &data.Systems)
-	fetch(c.collections.systemStats, &data.SystemStats)
-	fetch(c.collections.containers, &data.Containers)
-	fetch(c.collections.containerStats, &data.ContainerStats)
-	fetch(c.collections.realtime, &data.Realtime)
-	fetch(c.collections.alerts, &data.Alerts)
+	fetch(c.collections.systems, &data.Systems, false)
+	fetch(c.collections.systemStats, &data.SystemStats, false)
+	fetch(c.collections.containers, &data.Containers, false)
+	fetch(c.collections.containerStats, &data.ContainerStats, false)
+	// Realtime metrics are supplementary and may be unavailable to readonly users.
+	fetch(c.collections.realtime, &data.Realtime, true)
+	fetch(c.collections.alerts, &data.Alerts, false)
 	return data, errorsByCollection
 }
 
