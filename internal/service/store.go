@@ -87,6 +87,9 @@ func (s *Store) Refresh(ctx context.Context) {
 		source := domain.SourceStatus{Name: "uptime_kuma", Configured: s.kuma.Configured(), Status: "not_configured"}
 		if source.Configured {
 			services, err := s.kuma.Fetch(ctx)
+			if services == nil {
+				services = []domain.Service{}
+			}
 			snapshot.Services = services
 			if err == nil {
 				source.Status = "ok"
